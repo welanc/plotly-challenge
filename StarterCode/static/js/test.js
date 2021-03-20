@@ -12,19 +12,25 @@ jsonPromise.then((data) => {
             .attr("value", item)
             .text(item);
     });
-    var firstDatum = data.samples.filter(sample => sample.id === names[0]);
-    initBar(firstDatum);
 
+    var firstMetaData = data.metadata.filter(metadata => metadata.id === parseInt(names[0]));
+    demoInfo(firstMetaData);
+
+    var firstDatum = data.samples.filter(sample => sample.id === names[0]);
+
+    initBar(firstDatum);
+    initBubble(firstDatum);
 });
 
 
-// Unpack data for plotting
-function unpack(rows, index) {
-  return rows.map(function(row) {
-    return row[index];
-  });
-}
+// // Unpack data for plotting
+// function unpack(rows, index) {
+//   return rows.map(function(row) {
+//     return row[index];
+//   });
+// }
 
+// Get top ten samples for bar plots
 function topTenSamples(data) {
     // Assign empty array to hold reorganised data    
     var arr = [];
@@ -52,14 +58,14 @@ function topTenSamples(data) {
     console.log(renamedIDs);
 
     return renamedIDs;
-
 };
 
-
+// Create initial bar plot 
 function initBar(sampleID) {
 
     var results = topTenSamples(sampleID);
     // Define the data and layout to create a Plotly bar plot 
+    console.log(results.map(object => object.sample_values));
     var trace1 = {
         x: results.map(object => object.sample_values),
         y: results.map(object => object.otu_ids),
@@ -75,38 +81,112 @@ function initBar(sampleID) {
     var data = [trace1];
 
     var layout = {
-        title: 'Colored Bar Chart'
+        title: `Top 10 OTUs in Test Subject`
     };
 
     Plotly.newPlot("bar", data, layout);
-    
 };
 
 
+// Create initial bubble chart 
+function initBubble(sampleID) {
+    
+    var otuIDs = sampleID.flatMap(object => object.otu_ids);
+    var sampleValues = sampleID.flatMap(object => object.sample_values);
+    var otuLabels = sampleID.flatMap(object => object.otu_labels);
+
+
+    console.log(otuIDs);
+    console.log(sampleValues);
+    console.log(otuLabels);
+
+    var trace1 = {
+        x: otuIDs,
+        y: sampleValues,
+        text: otuLabels,
+        mode: 'markers',
+        marker: {
+            color: otuIDs,
+            size: sampleValues
+        }
+    };
+
+    var data = [trace1];
+
+    var layout = {
+    title: 'Amount and ID of OTUs in Test Subject',
+    showlegend: false,
+    xaxis: {
+        title: {
+            text: 'OTU ID'
+            },
+        }
+    };
+
+    Plotly.newPlot("bubble", data, layout);
+};
+
+function demoInfo(sampleID) {
+    var panelBody = d3.select("#sample-metadata");
+    
+    // clear any existing data
+    panelBody.html("");
+
+    sampleID.forEach((id) => {
+        Object.entries(id).forEach(([key, value]) => {
+            panelBody.append("p").text(`${key}: ${value}`);
+        });
+            
+    });
+
+};
+
+// Change all visualisations per to current selection sample ID
 function optionChanged(item) {
-    // console.log(item);
+    // Confirm ID matches selection dropdown
+    console.log(item);
 
     jsonPromise.then((data) => {
         var userValue = item;
         var sample = data.samples.filter(sample => sample.id === userValue);
         barPlot(sample);
+        bubblePlot(sample);
+        var newMetaData = data.metadata.filter(metadata => metadata.id === parseInt(userValue));
+        demoInfo(newMetaData);
+
     });
 
     return item;
 };
 
-
+// Update initial bar plot with current dropdown option selection
 function barPlot(sampleID) {
 
+    // Get top ten of current selected sample ID
     var results = topTenSamples(sampleID);
 
+    // Map the new data to update the existing bar plot
     var x = results.map(object => object.sample_values);
     var y = results.map(object => object.otu_ids);
     var text = results.map(object => object.otu_labels);
 
+    // Restyle the existing plot with current selected sample ID data
     Plotly.restyle("bar", "x", [x]);
     Plotly.restyle("bar", "y", [y]);
     Plotly.restyle("bar", "text", [text]);
-    
 };
 
+
+// Update initial bar plot with current dropdown option selection
+function bubblePlot(sampleID) {
+
+    // Map the new data to update the existing bubble chart
+    var x = sampleID.flatMap(object => object.otu_ids);
+    var y = sampleID.flatMap(object => object.sample_values);
+    var text = sampleID.flatMap(object => object.otu_labels);
+
+    // Restyle the existing plot with current selected sample ID data
+    Plotly.restyle("bubble", "x", [x]);
+    Plotly.restyle("bubble", "y", [y]);
+    Plotly.restyle("bubble", "text", [text]);
+};
