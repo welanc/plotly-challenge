@@ -154,12 +154,14 @@ function optionChanged(item) {
     // info panel with current selection sample ID
     jsonPromise.then((data) => {
         var userValue = item;
+
         var sample = data.samples.filter(sample => sample.id === userValue);
         barPlot(sample);
         bubblePlot(sample);
+
         var newMetaData = data.metadata.filter(metadata => metadata.id === parseInt(userValue));
         demoInfo(newMetaData);
-
+        gaugeChart(newMetaData);
     });
 
     return item;
