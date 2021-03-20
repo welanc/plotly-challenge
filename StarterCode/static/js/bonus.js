@@ -1,4 +1,4 @@
-var jsonPromise = d3.json("../../data/samples.json");
+var jsonPromise = d3.json("./../../data/samples.json");
 
 // Get the current value of the dropdown menu
 jsonPromise.then((data) => {
