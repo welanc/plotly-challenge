@@ -13,22 +13,17 @@ jsonPromise.then((data) => {
             .text(item);
     });
 
+    // Fill in Demographic Info panel with initial data
     var firstMetaData = data.metadata.filter(metadata => metadata.id === parseInt(names[0]));
     demoInfo(firstMetaData);
 
+    // Generate initial horizontal bar graph and bubble chart
     var firstDatum = data.samples.filter(sample => sample.id === names[0]);
-
     initBar(firstDatum);
     initBubble(firstDatum);
 });
 
 
-// // Unpack data for plotting
-// function unpack(rows, index) {
-//   return rows.map(function(row) {
-//     return row[index];
-//   });
-// }
 
 // Get top ten samples for bar plots
 function topTenSamples(data) {
@@ -63,9 +58,13 @@ function topTenSamples(data) {
 // Create initial bar plot 
 function initBar(sampleID) {
 
+    // Fetch top ten samples using function
     var results = topTenSamples(sampleID);
-    // Define the data and layout to create a Plotly bar plot 
+    
+    // Log to confirm results have been successfully fetched
     console.log(results.map(object => object.sample_values));
+    
+    // Define the data and layout to create a Plotly bar plot 
     var trace1 = {
         x: results.map(object => object.sample_values),
         y: results.map(object => object.otu_ids),
@@ -84,6 +83,7 @@ function initBar(sampleID) {
         title: `Top 10 OTUs in Test Subject`
     };
 
+    // Generate bar plot
     Plotly.newPlot("bar", data, layout);
 };
 
@@ -91,15 +91,17 @@ function initBar(sampleID) {
 // Create initial bubble chart 
 function initBubble(sampleID) {
     
+    // Define variables for x and y axes and labels
     var otuIDs = sampleID.flatMap(object => object.otu_ids);
     var sampleValues = sampleID.flatMap(object => object.sample_values);
     var otuLabels = sampleID.flatMap(object => object.otu_labels);
 
-
+    // Log to confirm successfully defined variables
     console.log(otuIDs);
     console.log(sampleValues);
     console.log(otuLabels);
 
+    // Define the data and layout to create a Plotly bar plot 
     var trace1 = {
         x: otuIDs,
         y: sampleValues,
@@ -123,9 +125,11 @@ function initBubble(sampleID) {
         }
     };
 
+    // Generate bubble chart
     Plotly.newPlot("bubble", data, layout);
 };
 
+// Populate Demographic Info into panel
 function demoInfo(sampleID) {
     var panelBody = d3.select("#sample-metadata");
     
@@ -143,9 +147,11 @@ function demoInfo(sampleID) {
 
 // Change all visualisations per to current selection sample ID
 function optionChanged(item) {
-    // Confirm ID matches selection dropdown
+    // Log to confirm ID matches selection dropdown
     console.log(item);
 
+    // Update bar plot, bubble chart and demographic
+    // info panel with current selection sample ID
     jsonPromise.then((data) => {
         var userValue = item;
         var sample = data.samples.filter(sample => sample.id === userValue);
