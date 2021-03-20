@@ -49,7 +49,7 @@ function topTenSamples(data) {
     var reversedData = slicedData.reverse();
 
     // Add "OTU" prefix to the IDs
-    var renamedIDs = reversedData.map(i => ({...i, otu_ids: 'OTU ' + i.otu_ids }));
+    var renamedIDs = reversedData.map(i => ({ ...i, otu_ids: 'OTU ' + i.otu_ids }));
     console.log(renamedIDs);
 
     return renamedIDs;
@@ -60,10 +60,10 @@ function initBar(sampleID) {
 
     // Fetch top ten samples using function
     var results = topTenSamples(sampleID);
-    
+
     // Log to confirm results have been successfully fetched
     console.log(results.map(object => object.sample_values));
-    
+
     // Define the data and layout to create a Plotly bar plot 
     var trace1 = {
         x: results.map(object => object.sample_values),
@@ -90,7 +90,7 @@ function initBar(sampleID) {
 
 // Create initial bubble chart 
 function initBubble(sampleID) {
-    
+
     // Define variables for x and y axes and labels
     var otuIDs = sampleID.flatMap(object => object.otu_ids);
     var sampleValues = sampleID.flatMap(object => object.sample_values);
@@ -116,11 +116,11 @@ function initBubble(sampleID) {
     var data = [trace1];
 
     var layout = {
-    title: 'Amount and ID of OTUs in Test Subject',
-    showlegend: false,
-    xaxis: {
-        title: {
-            text: 'OTU ID'
+        title: 'Amount and ID of OTUs in Test Subject',
+        showlegend: false,
+        xaxis: {
+            title: {
+                text: 'OTU ID'
             },
         }
     };
@@ -132,7 +132,7 @@ function initBubble(sampleID) {
 // Populate Demographic Info into panel
 function demoInfo(sampleID) {
     var panelBody = d3.select("#sample-metadata");
-    
+
     // clear any existing data
     panelBody.html("");
 
@@ -140,7 +140,7 @@ function demoInfo(sampleID) {
         Object.entries(id).forEach(([key, value]) => {
             panelBody.append("p").text(`${key}: ${value}`);
         });
-            
+
     });
 
 };
@@ -183,7 +183,7 @@ function barPlot(sampleID) {
 };
 
 
-// Update initial bar plot with current dropdown option selection
+// Update initial bubble chart with current dropdown option selection
 function bubblePlot(sampleID) {
 
     // Map the new data to update the existing bubble chart
@@ -191,7 +191,7 @@ function bubblePlot(sampleID) {
     var y = sampleID.flatMap(object => object.sample_values);
     var text = sampleID.flatMap(object => object.otu_labels);
 
-    // Restyle the existing plot with current selected sample ID data
+    // Restyle the existing bubble chart with current selected sample ID data
     Plotly.restyle("bubble", "x", [x]);
     Plotly.restyle("bubble", "y", [y]);
     Plotly.restyle("bubble", "text", [text]);
